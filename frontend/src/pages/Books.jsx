@@ -1,6 +1,4 @@
-import React from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -23,8 +21,8 @@ const Books = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8800/books/`+id); //await axios.delete(`http://localhost:8800/books/${id}`);
-      window.location.reload()
+      await axios.delete(`http://localhost:8800/books/` + id);
+      window.location.reload(); // Refresh the page after deletion
     } catch (err) {
       console.log(err);
     }
@@ -36,11 +34,19 @@ const Books = () => {
       <div className="books">
         {books.map((book) => (
           <div key={book.id} className="book">
-            <img src={book.cover} alt="" />
+            {book.cover && (
+              <img
+                src={`http://localhost:8800${book.cover}`} // Use the uploaded image path
+                alt={book.title}
+                style={{ width: "150px", height: "200px" }} // Set a size for the image
+              />
+            )}
             <h2>{book.title}</h2>
             <p>{book.desc}</p>
             <span>${book.price}</span>
-            <button className="delete" onClick={() => handleDelete(book.id)}>Delete</button>
+            <button className="delete" onClick={() => handleDelete(book.id)}>
+              Delete
+            </button>
             <button className="update">
               <Link
                 to={`/update/${book.id}`}

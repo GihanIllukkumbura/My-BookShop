@@ -1,6 +1,5 @@
 import axios from "axios";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Add = () => {
@@ -8,24 +7,42 @@ const Add = () => {
     title: "",
     desc: "",
     price: null,
-    cover: "",
+    cover: null,  // Initialize as null since it's a file
   });
-  const [error,setError] = useState(false)
+  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
 
+  // Handle text input and file input changes
   const handleChange = (e) => {
-    setBook((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (e.target.name === "cover") {
+      setBook((prev) => ({ ...prev, cover: e.target.files[0] })); // For file input
+    } else {
+      setBook((prev) => ({ ...prev, [e.target.name]: e.target.value })); // For text input
+    }
   };
-console.log(book)
+
+  console.log(book);
+
+  // Handle form submission
   const handleClick = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", book.title);
+    formData.append("desc", book.desc);
+    formData.append("price", book.price);
+    formData.append("cover", book.cover);  // Add cover image file to form data
+
     try {
-      await axios.post("http://localhost:8800/books", book);
+      await axios.post("http://localhost:8800/books", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",  // Set content type for file upload
+        },
+      });
       navigate("/");
     } catch (err) {
       console.log(err);
-      setError(true)
+      setError(true);
     }
   };
 
@@ -41,7 +58,7 @@ console.log(book)
       <textarea
         rows={5}
         type="text"
-        placeholder="Book desc"
+        placeholder="Book description"
         name="desc"
         onChange={handleChange}
       />
@@ -52,10 +69,11 @@ console.log(book)
         onChange={handleChange}
       />
       <input
-        type="text"
+        type="file"
+        accept="image/*"
         placeholder="Book cover"
         name="cover"
-        onChange={handleChange}
+        onChange={handleChange}  // Handle image file input
       />
       <button onClick={handleClick}>Add</button>
       {error && "Something went wrong!"}
@@ -65,5 +83,3 @@ console.log(book)
 };
 
 export default Add;
-
-
